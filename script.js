@@ -134,10 +134,87 @@ function restartGame() {
 }
 
 // ============================================================================
-// 5. Event-Listener & Programmstart
+// 5. Spielzug-Logik & Schutz vor Fehlbedienungen
+// ============================================================================
+
+/**
+ * Sucht in einer Spalte von unten nach oben (Reihe 5 bis 0) die erste freie Zelle.
+ * @param {number} col - Index der geklickten Spalte (0 bis 6)
+ * @returns {number} Reihen-Index (0 bis 5) oder -1, falls die Spalte voll ist
+ */
+function getLowestEmptyRow(col) {
+    for (let row = ROWS - 1; row >= 0; row--) {
+        if (board[row][col] === 0) {
+            return row;
+        }
+    }
+    return -1;
+}
+
+/**
+ * Verarbeitet einen Klick auf das Spielfeld (Event Delegation).
+ * @param {MouseEvent} event - Das Klick-Event
+ */
+function handleBoardClick(event) {
+    // 1. Fehlbedienung abfangen: Spiel noch nicht gestartet oder bereits beendet
+    if (!gameActive) {
+        return;
+    }
+
+    // 2. Fehlbedienung abfangen: Schutz gegen schnelle Doppelklicks
+    if (isProcessingMove) {
+        return;
+    }
+
+    // Prüfen, ob tatsächlich auf eine einzelne Zelle (.cell) geklickt wurde
+    const clickedCell = event.target.closest(".cell");
+    if (!clickedCell) {
+        return;
+    }
+
+    // Zug-Verarbeitung sperren, bis der aktuelle Zug komplett abgeschlossen ist
+    isProcessingMove = true;
+
+    const col = Number(clickedCell.dataset.col);
+    const targetRow = getLowestEmptyRow(col);
+
+    // 3. Fehlbedienung abfangen: Geklickte Spalte ist bereits voll
+    if (targetRow === -1) {
+        const colorName = currentPlayer === 1 ? "Rot" : "Gelb";
+        updateStatus(
+            `Diese Spalte ist bereits voll! ${playerNames[currentPlayer]} (${colorName}) ist weiterhin am Zug.`,
+            "error"
+        );
+        isProcessingMove = false;
+        return;
+    }
+
+    // Stein im 2D-Array (Datenmodell) speichern
+    board[targetRow][col] = currentPlayer;
+
+    // Zugehörige Zelle im DOM suchen und farblich markieren
+    const targetCell = boardElement.querySelector(
+        `.cell[data-row="${targetRow}"][data-col="${col}"]`
+    );
+    targetCell.classList.add(`player${currentPlayer}`);
+
+    // Spielerwechsel vorbereiten (Gewinnprüfung folgt in Schritt 5)
+    currentPlayer = currentPlayer === 1 ? 2 : 1;
+    const nextColorName = currentPlayer === 1 ? "Rot" : "Gelb";
+    updateStatus(`${playerNames[currentPlayer]} (${nextColorName}) ist am Zug.`);
+
+    // Kurze Entprell-Sperre (150 ms) gegen versehentliche Doppelklicks
+    setTimeout(() => {
+        isProcessingMove = false;
+    }, 150);
+}
+
+// ============================================================================
+// 6. Event-Listener & Programmstart
 // ============================================================================
 startBtn.addEventListener("click", startGame);
 restartBtn.addEventListener("click", restartGame);
+boardElement.addEventListener("click", handleBoardClick);
 
 // Beim ersten Laden der Seite das leere 7x6-Spielfeld aufbauen
 initBoard();
