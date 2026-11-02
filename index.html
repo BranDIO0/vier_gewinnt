@@ -10,9 +10,7 @@
 
     <!-- Kopfbereich mit Hochschul-Logo und Studierenden-Daten -->
     <header class="site-header">
-        <div class="logo-placeholder" aria-label="Logo der Hochschule Esslingen">
-            HS Esslingen
-        </div>
+        <img src="picture/Logo_HS_Esslingen.webp" alt="Logo der Hochschule Esslingen" class="hs-logo">
         <div class="student-info">
             <h1>Vier Gewinnt</h1>
             <p><strong>Name:</strong> Jan Ehrler<br><strong>Studiengang:</strong> Softwaretechnik und Medieninformatik<br><strong>Kürzel:</strong> jaehit00</p>
@@ -22,17 +20,31 @@
     <!-- Hauptbereich der Anwendung -->
     <main class="game-container">
 
-        <!-- Steuerungsbereich: Spielernamen, Buttons und Statusanzeige -->
+        <!-- Steuerungsbereich: Spielernamen, Farben, Spielmodus, Buttons und Statusanzeige -->
         <section class="controls-section" aria-label="Spielsteuerung">
             <div class="player-inputs">
                 <div class="input-group">
-                    <label for="player1-name">Spieler 1 (Rot):</label>
-                    <input type="text" id="player1-name" placeholder="Name Spieler 1" maxlength="20">
+                    <label for="player1-name">Spieler 1:</label>
+                    <div class="name-color-row">
+                        <input type="text" id="player1-name" placeholder="Name Spieler 1" maxlength="20">
+                        <input type="color" id="player1-color" value="#e11d48" title="Stein-Farbe für Spieler 1 wählen" aria-label="Farbe Spieler 1">
+                    </div>
                 </div>
                 <div class="input-group">
-                    <label for="player2-name">Spieler 2 (Gelb):</label>
-                    <input type="text" id="player2-name" placeholder="Name Spieler 2" maxlength="20">
+                    <label for="player2-name">Spieler 2:</label>
+                    <div class="name-color-row">
+                        <input type="text" id="player2-name" placeholder="Name Spieler 2" maxlength="20">
+                        <input type="color" id="player2-color" value="#facc15" title="Stein-Farbe für Spieler 2 wählen" aria-label="Farbe Spieler 2">
+                    </div>
                 </div>
+            </div>
+
+            <!-- Optionale Erweiterung: Einfacher Computergegner (Bot) -->
+            <div class="mode-row">
+                <label class="bot-checkbox-label">
+                    <input type="checkbox" id="bot-checkbox">
+                    Gegen Computergegner (Bot) spielen
+                </label>
             </div>
 
             <div class="button-group">
@@ -49,6 +61,16 @@
         <!-- Spielfeld-Bereich (7 Spalten x 6 Reihen werden per JavaScript erzeugt) -->
         <section class="board-section" aria-label="Spielfeld">
             <div id="board" class="board"></div>
+        </section>
+
+        <!-- Optionale Erweiterung: Spielstatistik / Verlauf via localStorage -->
+        <section class="stats-section" aria-label="Bisherige Ergebnisse">
+            <div class="stats-header">
+                <h2>Bisherige Spiele (localStorage)</h2>
+                <button type="button" id="clear-stats-btn" class="secondary-btn">Verlauf löschen</button>
+            </div>
+            <p id="stats-summary" class="stats-summary">Noch keine abgeschlossenen Spiele gespeichert.</p>
+            <ul id="history-list" class="history-list"></ul>
         </section>
 
     </main>
