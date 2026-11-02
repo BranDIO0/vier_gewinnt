@@ -9,6 +9,7 @@
 const ROWS = 6;
 const COLS = 7;
 const STORAGE_KEY = "vierGewinnt_history";
+const THEME_STORAGE_KEY = "vierGewinnt_theme";
 
 // 2D-Array für das Spielfeld (6 Reihen x 7 Spalten): 0 = leer, 1 = Spieler 1, 2 = Spieler 2
 let board = [];
@@ -37,6 +38,7 @@ const statusMessage = document.getElementById("status-message");
 const statsSummary = document.getElementById("stats-summary");
 const historyList = document.getElementById("history-list");
 const clearStatsBtn = document.getElementById("clear-stats-btn");
+const themeToggleBtn = document.getElementById("theme-toggle-btn");
 
 // ============================================================================
 // 3. Spielfeld-Initialisierung & Darstellung
@@ -480,7 +482,31 @@ function clearHistory() {
 }
 
 // ============================================================================
-// 9. Event-Listener & Programmstart
+// 9. Darkmode-Umschaltung
+// ============================================================================
+
+/**
+ * Schaltet zwischen hellem Design und Darkmode um und merkt sich die Einstellung.
+ */
+function toggleTheme() {
+    const isDark = document.body.classList.toggle("dark-mode");
+    themeToggleBtn.textContent = isDark ? "☀️ Lightmode" : "🌙 Darkmode";
+    localStorage.setItem(THEME_STORAGE_KEY, isDark ? "dark" : "light");
+}
+
+/**
+ * Lädt die zuletzt gewählte Theme-Einstellung beim Seitenstart.
+ */
+function loadSavedTheme() {
+    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+    if (savedTheme === "dark") {
+        document.body.classList.add("dark-mode");
+        themeToggleBtn.textContent = "☀️ Lightmode";
+    }
+}
+
+// ============================================================================
+// 10. Event-Listener & Programmstart
 // ============================================================================
 startBtn.addEventListener("click", startGame);
 restartBtn.addEventListener("click", restartGame);
@@ -489,8 +515,10 @@ player1ColorInput.addEventListener("input", applyPlayerColors);
 player2ColorInput.addEventListener("input", applyPlayerColors);
 botCheckbox.addEventListener("change", handleBotToggle);
 clearStatsBtn.addEventListener("click", clearHistory);
+themeToggleBtn.addEventListener("click", toggleTheme);
 
-// Beim ersten Laden der Seite: Spielfeld aufbauen, Farben setzen und Historie laden
+// Beim ersten Laden der Seite: Spielfeld aufbauen, Farben, Theme und Historie laden
 initBoard();
 applyPlayerColors();
+loadSavedTheme();
 renderHistory();
