@@ -198,7 +198,28 @@ function handleBoardClick(event) {
     );
     targetCell.classList.add(`player${currentPlayer}`);
 
-    // Spielerwechsel vorbereiten (Gewinnprüfung folgt in Schritt 5)
+    // 4. Gewinnprüfung nach dem gesetzten Stein
+    const winningCells = checkWin(targetRow, col, currentPlayer);
+    if (winningCells) {
+        gameActive = false;
+        boardElement.classList.remove("active");
+        highlightWinningCells(winningCells);
+        const colorName = currentPlayer === 1 ? "Rot" : "Gelb";
+        updateStatus(`🎉 ${playerNames[currentPlayer]} (${colorName}) hat gewonnen!`, "win");
+        isProcessingMove = false;
+        return;
+    }
+
+    // 5. Unentschieden-Prüfung (Spielfeld komplett voll)
+    if (checkDraw()) {
+        gameActive = false;
+        boardElement.classList.remove("active");
+        updateStatus("Unentschieden! Das Spielfeld ist komplett voll.", "win");
+        isProcessingMove = false;
+        return;
+    }
+
+    // Spielerwechsel vorbereiten
     currentPlayer = currentPlayer === 1 ? 2 : 1;
     const nextColorName = currentPlayer === 1 ? "Rot" : "Gelb";
     updateStatus(`${playerNames[currentPlayer]} (${nextColorName}) ist am Zug.`);
@@ -210,7 +231,91 @@ function handleBoardClick(event) {
 }
 
 // ============================================================================
-// 6. Event-Listener & Programmstart
+// 6. Gewinn- und Unentschieden-Prüfung
+// ============================================================================
+
+/**
+ * Prüft ausgehend vom zuletzt gesetzten Stein (row, col), ob mindestens
+ * 4 Steine desselben Spielers in einer Reihe liegen (horizontal, vertikal, diagonal).
+ *
+ * @param {number} row - Reihe des zuletzt gesetzten Steins
+ * @param {number} col - Spalte des zuletzt gesetzten Steins
+ * @param {number} player - Aktueller Spieler (1 oder 2)
+ * @returns {Array<{row: number, col: number}> | null} Array der Gewinnzellen oder null
+ */
+function checkWin(row, col, player) {
+    // Die 4 zu prüfenden Achsen als Richtungsvektoren [dRow, dCol]
+    const directions = [
+        [0, 1],  // Horizontal (links <-> rechts)
+        [1, 0],  // Vertikal (oben <-> unten)
+        [1, 1],  // Diagonal fallend (\)
+        [1, -1]  // Diagonal steigend (/)
+    ];
+
+    for (const [dRow, dCol] of directions) {
+        // Startet mit dem soeben gesetzten Stein
+        const connectedCells = [{ row, col }];
+
+        // In positive Richtung entlang der Achse zählen (+dRow, +dCol)
+        collectCellsInDirection(row, col, dRow, dCol, player, connectedCells);
+
+        // In entgegengesetzte Richtung entlang der Achse zählen (-dRow, -dCol)
+        collectCellsInDirection(row, col, -dRow, -dCol, player, connectedCells);
+
+        // Sobald 4 (oder mehr) zusammenhängende Steine gefunden wurden -> Sieg!
+        if (connectedCells.length >= 4) {
+            return connectedCells;
+        }
+    }
+
+    return null;
+}
+
+/**
+ * Läuft vom Startpunkt (startRow, startCol) Schritt für Schritt in Richtung (stepRow, stepCol)
+ * und sammelt alle direkt angrenzenden Steine desselben Spielers.
+ */
+function collectCellsInDirection(startRow, startCol, stepRow, stepCol, player, connectedCells) {
+    let r = startRow + stepRow;
+    let c = startCol + stepCol;
+
+    while (
+        r >= 0 && r < ROWS &&
+        c >= 0 && c < COLS &&
+        board[r][c] === player
+    ) {
+        connectedCells.push({ row: r, col: c });
+        r += stepRow;
+        c += stepCol;
+    }
+}
+
+/**
+ * Hebt die Steine der Gewinner-Kombination optisch im DOM hervor.
+ * @param {Array<{row: number, col: number}>} cells - Koordinaten der Gewinnsteine
+ */
+function highlightWinningCells(cells) {
+    for (const { row, col } of cells) {
+        const cellElement = boardElement.querySelector(
+            `.cell[data-row="${row}"][data-col="${col}"]`
+        );
+        if (cellElement) {
+            cellElement.classList.add("winning-cell");
+        }
+    }
+}
+
+/**
+ * Prüft auf Unentschieden: Wenn in der obersten Reihe (Index 0)
+ * jede Zelle ungleich 0 ist, ist das gesamte 6x7-Feld voll.
+ * @returns {boolean} true bei Unentschieden, sonst false
+ */
+function checkDraw() {
+    return board[0].every((cellValue) => cellValue !== 0);
+}
+
+// ============================================================================
+// 7. Event-Listener & Programmstart
 // ============================================================================
 startBtn.addEventListener("click", startGame);
 restartBtn.addEventListener("click", restartGame);
