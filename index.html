@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vier Gewinnt - Hochschule Esslingen</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Kopfbereich mit Hochschul-Logo und Studierenden-Daten -->
+    <header class="site-header">
+        <div class="logo-placeholder" aria-label="Logo der Hochschule Esslingen">
+            HS Esslingen
+        </div>
+        <div class="student-info">
+            <h1>Vier Gewinnt</h1>
+            <p><strong>Name:</strong> Jan Ehrler | <strong>Studiengang:</strong> Softwaretechnik und Medieninformatik | <strong>Kürzel:</strong> jaehit00</p>
+        </div>
+    </header>
+
+    <!-- Hauptbereich der Anwendung -->
+    <main class="game-container">
+
+        <!-- Steuerungsbereich: Spielernamen, Buttons und Statusanzeige -->
+        <section class="controls-section" aria-label="Spielsteuerung">
+            <div class="player-inputs">
+                <div class="input-group">
+                    <label for="player1-name">Spieler 1 (Rot):</label>
+                    <input type="text" id="player1-name" placeholder="Name Spieler 1" maxlength="20">
+                </div>
+                <div class="input-group">
+                    <label for="player2-name">Spieler 2 (Gelb):</label>
+                    <input type="text" id="player2-name" placeholder="Name Spieler 2" maxlength="20">
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="button" id="start-btn">Spiel starten</button>
+                <button type="button" id="restart-btn" disabled>Neustart</button>
+            </div>
+
+            <!-- Statusanzeige für Spielzüge, Gewinner und Fehlermeldungen -->
+            <p id="status-message" class="status-message" aria-live="polite">
+                Bitte gebt zwei unterschiedliche Spielernamen ein und klickt auf „Spiel starten“.
+            </p>
+        </section>
+
+        <!-- Spielfeld-Bereich (7 Spalten x 6 Reihen werden per JavaScript erzeugt) -->
+        <section class="board-section" aria-label="Spielfeld">
+            <div id="board" class="board"></div>
+        </section>
+
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
